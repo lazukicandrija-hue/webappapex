@@ -308,6 +308,26 @@ function drawCoverTemplate1(ctx, w, h, d) {
         ctx.font = `300 ${$(18)}px 'Outfit', sans-serif`;
         ctx.fillStyle = 'rgba(255,255,255,0.5)';
         ctx.fillText('kup.', detX + numW + $(6), detY);
+        detX += numW + $(70);
+    }
+
+    // Separator dot
+    if (d.bath && d.floor) {
+        ctx.fillStyle = '#B8944A';
+        ctx.beginPath();
+        ctx.arc(detX, detY - $(10), $(4), 0, Math.PI * 2);
+        ctx.fill();
+        detX += $(30);
+    }
+
+    if (d.floor) {
+        ctx.font = `700 ${$(38)}px 'Outfit', sans-serif`;
+        ctx.fillStyle = '#fff';
+        ctx.fillText(d.floor, detX, detY);
+        const numW = ctx.measureText(d.floor).width;
+        ctx.font = `300 ${$(18)}px 'Outfit', sans-serif`;
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.fillText('sprat', detX + numW + $(6), detY);
     }
 
     // Divider line
@@ -322,11 +342,11 @@ function drawCoverTemplate1(ctx, w, h, d) {
     ctx.lineTo(w - $(60), lineY);
     ctx.stroke();
 
-    // Price
+    // Price (offset right to avoid logo)
     if (state.showPrice && d.price) {
         ctx.font = `800 ${$(44)}px 'Outfit', sans-serif`;
         ctx.fillStyle = '#B8944A';
-        ctx.fillText(d.price, $(60), h - $(65));
+        ctx.fillText(d.price + ' €', $(120), h - $(65));
     }
 
     // Phone
@@ -343,185 +363,214 @@ function drawCoverTemplate1(ctx, w, h, d) {
 }
 
 // ============================================
-// TEMPLATE 2: Side Panel
+// TEMPLATE 2: Glassmorphism Card
 // ============================================
 function drawCoverTemplate2(ctx, w, h, d, sourceImg) {
     const $ = (v) => s(w, v);
-    const panelW = w * 0.38;
 
-    // Clear and draw image on right side only
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(panelW, 0, w - panelW, h);
-    ctx.clip();
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = Math.round(w - panelW);
-    tempCanvas.height = h;
-    const tempCtx = tempCanvas.getContext('2d');
-    drawImageCover(tempCtx, sourceImg, tempCanvas.width, tempCanvas.height);
-    ctx.drawImage(tempCanvas, panelW, 0);
-    ctx.restore();
+    // Subtle overall darkening
+    const topGrad = ctx.createLinearGradient(0, 0, 0, h * 0.3);
+    topGrad.addColorStop(0, 'rgba(0,0,0,0.35)');
+    topGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = topGrad;
+    ctx.fillRect(0, 0, w, h * 0.3);
 
-    // Left panel
-    ctx.fillStyle = '#0d0d0d';
-    ctx.fillRect(0, 0, panelW, h);
+    // Bottom gradient for card area
+    const botGrad = ctx.createLinearGradient(0, h * 0.5, 0, h);
+    botGrad.addColorStop(0, 'rgba(0,0,0,0)');
+    botGrad.addColorStop(0.5, 'rgba(0,0,0,0.4)');
+    botGrad.addColorStop(1, 'rgba(0,0,0,0.8)');
+    ctx.fillStyle = botGrad;
+    ctx.fillRect(0, h * 0.5, w, h * 0.5);
 
-    // Gold accent line
+    // Tag badge (top right)
+    const tagText = d.type;
+    ctx.font = `800 ${$(16)}px 'Outfit', sans-serif`;
+    const tagW = ctx.measureText(tagText).width + $(36);
+    const tagH = $(38);
     ctx.fillStyle = '#B8944A';
-    ctx.fillRect(panelW - $(3), 0, $(3), h);
-
-    // Logo
-    if (state.logoImg) {
-        const logoS = $(140);
-        const lx = (panelW - logoS) / 2;
-        ctx.drawImage(state.logoImg, lx, $(80), logoS, logoS);
-    }
-
-    // Tag
-    ctx.font = `700 ${$(14)}px 'Outfit', sans-serif`;
-    ctx.fillStyle = '#B8944A';
+    roundRect(ctx, w - tagW - $(40), $(40), tagW, tagH, $(6));
+    ctx.fill();
+    ctx.fillStyle = '#000';
     ctx.textAlign = 'center';
-    ctx.letterSpacing = `${$(3)}px`;
-    ctx.fillText(d.type, panelW / 2, $(280));
-    ctx.letterSpacing = '0px';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(tagText, w - tagW / 2 - $(40), $(40) + tagH / 2);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
 
-    // Title
+    // Logo (top left)
+    drawLogoOnCanvas(ctx, w, h, $(70), 'top-left', $(40));
+
+    // Frosted glass card at bottom
+    const cardH = $(380);
+    const cardY = h - cardH - $(40);
+    const cardX = $(40);
+    const cardW = w - $(80);
+
+    // Card background (dark glass effect)
+    ctx.fillStyle = 'rgba(10, 10, 10, 0.65)';
+    roundRect(ctx, cardX, cardY, cardW, cardH, $(16));
+    ctx.fill();
+
+    // Card border
+    ctx.strokeStyle = 'rgba(184, 148, 74, 0.25)';
+    ctx.lineWidth = $(1);
+    roundRectPath(ctx, cardX, cardY, cardW, cardH, $(16));
+    ctx.stroke();
+
+    // Title inside card
     if (d.title) {
-        ctx.font = `700 ${$(40)}px 'DM Serif Display', serif`;
-        ctx.fillStyle = '#ffffff';
-        ctx.textAlign = 'left';
-        wrapText(ctx, d.title, $(35), $(400), panelW - $(70), $(50));
+        ctx.font = `700 ${$(48)}px 'DM Serif Display', serif`;
+        ctx.fillStyle = '#fff';
+        wrapText(ctx, d.title.toUpperCase(), cardX + $(30), cardY + $(60), cardW - $(60), $(56));
     }
 
-    // Details
-    const baseY = $(600);
-    const items = [];
-    if (d.size) items.push({ val: d.size, label: 'm²' });
-    if (d.rooms) items.push({ val: d.rooms, label: 'Sobe' });
-    if (d.bath) items.push({ val: d.bath, label: 'Kup.' });
-    if (d.floor) items.push({ val: d.floor, label: 'Sprat' });
+    // Subtitle
+    if (d.subtitle) {
+        ctx.font = `300 ${$(18)}px 'Outfit', sans-serif`;
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        wrapText(ctx, d.subtitle, cardX + $(30), cardY + $(120), cardW * 0.6, $(24));
+    }
 
-    items.forEach((item, i) => {
-        const iy = baseY + i * $(90);
-        ctx.font = `700 ${$(34)}px 'Outfit', sans-serif`;
-        ctx.fillStyle = '#fff';
+    // Gold divider inside card
+    const divY = cardY + $(165);
+    const lineGrad = ctx.createLinearGradient(cardX + $(30), 0, cardX + cardW - $(30), 0);
+    lineGrad.addColorStop(0, 'rgba(184,148,74,0.5)');
+    lineGrad.addColorStop(1, 'rgba(184,148,74,0.05)');
+    ctx.strokeStyle = lineGrad;
+    ctx.lineWidth = $(1);
+    ctx.beginPath();
+    ctx.moveTo(cardX + $(30), divY);
+    ctx.lineTo(cardX + cardW - $(30), divY);
+    ctx.stroke();
+
+    // Detail chips inside card
+    const chipY = divY + $(25);
+    const items = [];
+    if (d.size) items.push(d.size + ' m²');
+    if (d.rooms) items.push(d.rooms + ' sobe');
+    if (d.bath) items.push(d.bath + ' kup.');
+    if (d.floor) items.push(d.floor + ' sprat');
+
+    let chipX = cardX + $(30);
+    items.forEach((text) => {
+        ctx.font = `500 ${$(16)}px 'Outfit', sans-serif`;
+        const tw = ctx.measureText(text).width + $(24);
+        ctx.fillStyle = 'rgba(184, 148, 74, 0.12)';
+        roundRect(ctx, chipX, chipY, tw, $(34), $(8));
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(184, 148, 74, 0.25)';
+        ctx.lineWidth = $(1);
+        roundRectPath(ctx, chipX, chipY, tw, $(34), $(8));
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        ctx.textAlign = 'center';
+        ctx.fillText(text, chipX + tw / 2, chipY + $(22));
         ctx.textAlign = 'left';
-        ctx.fillText(item.val, $(35), iy);
-        ctx.font = `300 ${$(14)}px 'Outfit', sans-serif`;
-        ctx.fillStyle = 'rgba(255,255,255,0.4)';
-        ctx.fillText(item.label, $(35), iy + $(24));
+        chipX += tw + $(10);
     });
 
-    // Price at bottom
+    // Price inside card
     if (state.showPrice && d.price) {
-        ctx.font = `800 ${$(36)}px 'Outfit', sans-serif`;
+        ctx.font = `800 ${$(42)}px 'Outfit', sans-serif`;
         ctx.fillStyle = '#B8944A';
-        ctx.textAlign = 'center';
-        ctx.fillText(d.price, panelW / 2, h - $(120));
+        ctx.fillText(d.price + ' €', cardX + $(30), cardY + cardH - $(50));
     }
 
-    // Phone
+    // Phone inside card
     if (state.showPhone && d.phone) {
-        ctx.font = `400 ${$(14)}px 'Outfit', sans-serif`;
+        ctx.font = `400 ${$(15)}px 'Outfit', sans-serif`;
         ctx.fillStyle = 'rgba(255,255,255,0.4)';
-        ctx.textAlign = 'center';
-        ctx.fillText(d.phone, panelW / 2, h - $(70));
+        ctx.textAlign = 'right';
+        ctx.fillText(d.phone, cardX + cardW - $(30), cardY + cardH - $(55));
+        ctx.textAlign = 'left';
     }
-
-    ctx.textAlign = 'left';
 }
 
 // ============================================
-// TEMPLATE 3: Elegant Frame
+// TEMPLATE 3: Cinematic Bars
 // ============================================
 function drawCoverTemplate3(ctx, w, h, d) {
     const $ = (v) => s(w, v);
+    const barH = $(180);
 
-    // Overall darkening
-    ctx.fillStyle = 'rgba(0,0,0,0.25)';
-    ctx.fillRect(0, 0, w, h);
+    // Top dark bar
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, w, barH);
 
-    // Gold frame
-    const frameInset = $(30);
-    ctx.strokeStyle = 'rgba(184,148,74,0.5)';
-    ctx.lineWidth = $(2);
-    ctx.strokeRect(frameInset, frameInset, w - frameInset * 2, h - frameInset * 2);
+    // Bottom dark bar
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, h - barH, w, barH);
 
-    // Inner frame
-    const innerInset = $(40);
-    ctx.strokeStyle = 'rgba(184,148,74,0.15)';
-    ctx.lineWidth = $(1);
-    ctx.strokeRect(innerInset, innerInset, w - innerInset * 2, h - innerInset * 2);
+    // Subtle vignette on image area
+    const vigGrad = ctx.createRadialGradient(w / 2, h / 2, w * 0.2, w / 2, h / 2, w * 0.8);
+    vigGrad.addColorStop(0, 'rgba(0,0,0,0)');
+    vigGrad.addColorStop(1, 'rgba(0,0,0,0.3)');
+    ctx.fillStyle = vigGrad;
+    ctx.fillRect(0, barH, w, h - barH * 2);
 
-    // Logo top left
+    // Gold accent lines
+    ctx.fillStyle = '#B8944A';
+    ctx.fillRect(0, barH, w, $(3));
+    ctx.fillRect(0, h - barH - $(3), w, $(3));
+
+    // Logo on top bar (left)
     if (state.logoImg) {
-        const logoS = $(100);
-        ctx.drawImage(state.logoImg, $(60), $(50), logoS, logoS);
+        const logoS = $(90);
+        ctx.drawImage(state.logoImg, $(40), (barH - logoS) / 2, logoS, logoS);
     }
 
-    // Tag top right
-    ctx.font = `800 ${$(15)}px 'Outfit', sans-serif`;
+    // Type tag on top bar (right)
+    const tagText = d.type;
+    ctx.font = `800 ${$(18)}px 'Outfit', sans-serif`;
     ctx.fillStyle = '#B8944A';
     ctx.textAlign = 'right';
     ctx.letterSpacing = `${$(3)}px`;
-    ctx.fillText(d.type, w - $(60), $(95));
+    ctx.fillText(tagText, w - $(50), barH / 2 + $(6));
     ctx.letterSpacing = '0px';
-
-    // Bottom dark area
-    const bottomH = $(350);
-    const bottomGrad = ctx.createLinearGradient(0, h - bottomH - $(100), 0, h);
-    bottomGrad.addColorStop(0, 'rgba(0,0,0,0)');
-    bottomGrad.addColorStop(0.3, 'rgba(0,0,0,0.5)');
-    bottomGrad.addColorStop(1, 'rgba(0,0,0,0.85)');
-    ctx.fillStyle = bottomGrad;
-    ctx.fillRect(0, h - bottomH - $(100), w, bottomH + $(100));
-
-    // Title
     ctx.textAlign = 'left';
+
+    // Title on bottom bar
     if (d.title) {
-        ctx.font = `700 ${$(52)}px 'DM Serif Display', serif`;
+        ctx.font = `700 ${$(42)}px 'DM Serif Display', serif`;
         ctx.fillStyle = '#ffffff';
-        wrapText(ctx, d.title.toUpperCase(), $(60), h - $(280), w - $(120), $(62));
+        wrapText(ctx, d.title.toUpperCase(), $(50), h - barH + $(55), w * 0.6, $(50));
     }
 
-    // Subtitle (max 50% width, wraps)
+    // Subtitle below title
     if (d.subtitle) {
-        ctx.font = `300 ${$(18)}px 'Outfit', sans-serif`;
-        ctx.fillStyle = 'rgba(255,255,255,0.6)';
-        wrapText(ctx, d.subtitle, $(60), h - $(200), w * 0.5, $(24));
+        ctx.font = `300 ${$(16)}px 'Outfit', sans-serif`;
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        wrapText(ctx, d.subtitle, $(50), h - barH + $(105), w * 0.5, $(22));
     }
 
-    // Details line
-    let detailStr = '';
-    if (d.size) detailStr += d.size + ' m²';
-    if (d.rooms) detailStr += '  •  ' + d.rooms + ' sobe';
-    if (d.bath) detailStr += '  •  ' + d.bath + ' kup.';
-    if (d.floor) detailStr += '  •  ' + d.floor + ' sprat';
+    // Details on bottom bar (right side)
+    let detStr = '';
+    if (d.size) detStr += d.size + ' m²';
+    if (d.rooms) detStr += '  ·  ' + d.rooms + ' sobe';
+    if (d.floor) detStr += '  ·  ' + d.floor + ' sprat';
 
-    ctx.font = `400 ${$(18)}px 'Outfit', sans-serif`;
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.fillText(detailStr, $(60), h - $(150));
+    ctx.font = `400 ${$(16)}px 'Outfit', sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.textAlign = 'right';
+    ctx.fillText(detStr, w - $(50), h - barH + $(55));
+    ctx.textAlign = 'left';
 
-    // Gold line
-    ctx.strokeStyle = 'rgba(184,148,74,0.4)';
-    ctx.lineWidth = $(1.5);
-    ctx.beginPath();
-    ctx.moveTo($(60), h - $(120));
-    ctx.lineTo(w - $(60), h - $(120));
-    ctx.stroke();
-
-    // Price + Phone
+    // Price on bottom bar
     if (state.showPrice && d.price) {
         ctx.font = `800 ${$(40)}px 'Outfit', sans-serif`;
         ctx.fillStyle = '#B8944A';
-        ctx.fillText(d.price, $(60), h - $(70));
+        ctx.textAlign = 'right';
+        ctx.fillText(d.price + ' €', w - $(50), h - $(45));
+        ctx.textAlign = 'left';
     }
 
+    // Phone on bottom bar
     if (state.showPhone && d.phone) {
-        ctx.font = `400 ${$(16)}px 'Outfit', sans-serif`;
-        ctx.fillStyle = 'rgba(255,255,255,0.4)';
+        ctx.font = `400 ${$(14)}px 'Outfit', sans-serif`;
+        ctx.fillStyle = 'rgba(255,255,255,0.35)';
         ctx.textAlign = 'right';
-        ctx.fillText(d.phone, w - $(60), h - $(75));
+        ctx.fillText(d.phone, w - $(50), h - $(100));
         ctx.textAlign = 'left';
     }
 }
@@ -607,7 +656,7 @@ function drawCoverTemplate4(ctx, w, h, d, sourceImg) {
     if (state.showPrice && d.price) {
         ctx.font = `800 ${$(48)}px 'Outfit', sans-serif`;
         ctx.fillStyle = '#B8944A';
-        ctx.fillText(d.price, $(60), h - $(70));
+        ctx.fillText(d.price + ' €', $(60), h - $(70));
     }
 
     if (state.showPhone && d.phone) {
@@ -717,7 +766,7 @@ function drawCoverTemplate5(ctx, w, h, d, sourceImg) {
     if (state.showPrice && d.price) {
         ctx.font = `800 ${$(46)}px 'Outfit', sans-serif`;
         ctx.fillStyle = '#B8944A';
-        ctx.fillText(d.price, $(55), boxY + boxH + $(95));
+        ctx.fillText(d.price + ' €', $(55), boxY + boxH + $(95));
     }
 
     // Phone
@@ -795,7 +844,7 @@ function drawCoverTemplate6(ctx, w, h, d) {
     if (state.showPrice && d.price) {
         ctx.font = `900 ${$(48)}px 'Outfit', sans-serif`;
         ctx.fillStyle = '#0a0a0a';
-        ctx.fillText(d.price, $(50), h - $(45));
+        ctx.fillText(d.price + ' €', $(50), h - $(45));
     }
 
     // Phone on strip
@@ -952,15 +1001,19 @@ function downloadCover() {
         case 6: drawCoverTemplate6(fullCtx, 1080, 1350, data); break;
     }
 
+    // Prompt for filename (Save As)
+    const defaultName = 'APEX_' + (document.getElementById('propTitle').value || 'cover').replace(/[^a-zA-Z0-9čćžšđČĆŽŠĐ ]/g, '').replace(/ +/g, '_');
+    const fileName = prompt('Ime fajla za čuvanje:', defaultName);
+    if (!fileName) return; // User cancelled
+
     fullCanvas.toBlob((blob) => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        const title = document.getElementById('propTitle').value.replace(/[^a-zA-Z0-9]/g, '_') || 'cover';
         a.href = url;
-        a.download = `apex_cover_${title}.png`;
+        a.download = fileName.endsWith('.png') ? fileName : fileName + '.png';
         a.click();
         URL.revokeObjectURL(url);
-        showToast('Cover preuzet! ✓');
+        showToast('Cover sačuvan kao: ' + a.download + ' ✓');
     }, 'image/png');
 }
 
