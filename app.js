@@ -249,11 +249,11 @@ function drawCoverTemplate1(ctx, w, h, d) {
         wrapText(ctx, d.title.toUpperCase(), $(60), titleY, w - $(120), $(66));
     }
 
-    // Subtitle
+    // Subtitle (max 50% width, wraps)
     if (d.subtitle) {
-        ctx.font = `300 ${$(22)}px 'Outfit', sans-serif`;
+        ctx.font = `300 ${$(20)}px 'Outfit', sans-serif`;
         ctx.fillStyle = 'rgba(255,255,255,0.6)';
-        ctx.fillText(d.subtitle, $(60), titleY + $(40));
+        wrapText(ctx, d.subtitle, $(60), titleY + $(40), w * 0.5, $(26));
     }
 
     // Details row
@@ -484,11 +484,11 @@ function drawCoverTemplate3(ctx, w, h, d) {
         wrapText(ctx, d.title.toUpperCase(), $(60), h - $(280), w - $(120), $(62));
     }
 
-    // Subtitle
+    // Subtitle (max 50% width, wraps)
     if (d.subtitle) {
-        ctx.font = `300 ${$(20)}px 'Outfit', sans-serif`;
+        ctx.font = `300 ${$(18)}px 'Outfit', sans-serif`;
         ctx.fillStyle = 'rgba(255,255,255,0.6)';
-        ctx.fillText(d.subtitle, $(60), h - $(200));
+        wrapText(ctx, d.subtitle, $(60), h - $(200), w * 0.5, $(24));
     }
 
     // Details line
@@ -570,11 +570,11 @@ function drawCoverTemplate4(ctx, w, h, d, sourceImg) {
     ctx.textAlign = 'left';
     ctx.fillText(d.type, $(60), $(120));
 
-    // Title on bar
+    // Title on bar (wraps within gold bar)
     if (d.title) {
-        ctx.font = `400 ${$(24)}px 'Outfit', sans-serif`;
+        ctx.font = `400 ${$(22)}px 'Outfit', sans-serif`;
         ctx.fillStyle = 'rgba(0,0,0,0.6)';
-        ctx.fillText(d.title, $(60), $(170));
+        wrapText(ctx, d.title, $(60), $(165), w * 0.5, $(28));
     }
 
     // Logo on gold bar (right, subtle)
@@ -672,11 +672,11 @@ function drawCoverTemplate5(ctx, w, h, d, sourceImg) {
         wrapText(ctx, d.title.toUpperCase(), $(55), contentY, w - $(110), $(62));
     }
 
-    // Subtitle
+    // Subtitle (max 50% width, wraps)
     if (d.subtitle) {
-        ctx.font = `300 ${$(20)}px 'Outfit', sans-serif`;
+        ctx.font = `300 ${$(18)}px 'Outfit', sans-serif`;
         ctx.fillStyle = '#888';
-        ctx.fillText(d.subtitle, $(55), contentY + $(50));
+        wrapText(ctx, d.subtitle, $(55), contentY + $(50), w * 0.5, $(24));
     }
 
     // Detail boxes
