@@ -1,0 +1,12 @@
+name: apex-cover-generator
+region: fra
+static_sites:
+  - name: apex-cover-generator
+    github:
+      repo: lazukicandrija-hue/webappapex
+      branch: main
+      deploy_on_push: true
+    source_dir: /
+    output_dir: /
+    index_document: index.html
+    catchall_document: index.html
