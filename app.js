@@ -873,23 +873,55 @@ function roundRectPath(ctx, x, y, w, h, r) {
     ctx.closePath();
 }
 
-function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+function wrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
+    maxLines = maxLines || 3;
     const words = text.split(' ');
     let line = '';
     let lineY = y;
+    let lineCount = 0;
 
     for (let i = 0; i < words.length; i++) {
-        const testLine = line + words[i] + ' ';
-        const metrics = ctx.measureText(testLine);
-        if (metrics.width > maxWidth && i > 0) {
+        let word = words[i];
+
+        // Handle words longer than maxWidth — break by character
+        if (ctx.measureText(word).width > maxWidth && line === '') {
+            let partial = '';
+            for (let c = 0; c < word.length; c++) {
+                const test = partial + word[c];
+                if (ctx.measureText(test).width > maxWidth && partial.length > 0) {
+                    if (lineCount >= maxLines - 1) {
+                        ctx.fillText(partial.trim() + '…', x, lineY);
+                        return;
+                    }
+                    ctx.fillText(partial, x, lineY);
+                    lineY += lineHeight;
+                    lineCount++;
+                    partial = word[c];
+                } else {
+                    partial = test;
+                }
+            }
+            line = partial + ' ';
+            continue;
+        }
+
+        const testLine = line + word + ' ';
+        if (ctx.measureText(testLine).width > maxWidth && line !== '') {
+            if (lineCount >= maxLines - 1) {
+                ctx.fillText(line.trim() + '…', x, lineY);
+                return;
+            }
             ctx.fillText(line.trim(), x, lineY);
-            line = words[i] + ' ';
+            line = word + ' ';
             lineY += lineHeight;
+            lineCount++;
         } else {
             line = testLine;
         }
     }
-    ctx.fillText(line.trim(), x, lineY);
+    if (line.trim()) {
+        ctx.fillText(line.trim(), x, lineY);
+    }
 }
 
 // ============================================
@@ -996,4 +1028,13 @@ function showToast(msg) {
     toast.textContent = msg;
     toast.classList.add('visible');
     setTimeout(() => toast.classList.remove('visible'), 3000);
+}
+
+// ============================================
+// LOGOUT
+// ============================================
+function logout() {
+    sessionStorage.removeItem('apex_auth');
+    sessionStorage.removeItem('apex_user');
+    window.location.href = 'login.html';
 }

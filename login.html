@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APEX — Prijava</title>
+    <meta name="description" content="APEX Real Estate internal cover generator login.">
+    <link rel="icon" type="image/png" href="logo-transparent.png">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #B8944A;
+            --gold-light: #d4af5a;
+            --bg-dark: #0a0a0a;
+            --bg-card: #141414;
+            --bg-input: #1e1e1e;
+            --border: rgba(184, 148, 74, 0.15);
+            --border-focus: rgba(184, 148, 74, 0.5);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255,255,255,0.6);
+            --text-muted: rgba(255,255,255,0.35);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Animated background */
+        .bg-glow {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-glow::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(184, 148, 74, 0.08) 0%, transparent 70%);
+            top: -200px;
+            right: -200px;
+            animation: float1 8s ease-in-out infinite;
+        }
+
+        .bg-glow::after {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(184, 148, 74, 0.05) 0%, transparent 70%);
+            bottom: -150px;
+            left: -150px;
+            animation: float2 10s ease-in-out infinite;
+        }
+
+        @keyframes float1 {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-40px, 40px); }
+        }
+
+        @keyframes float2 {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, -30px); }
+        }
+
+        /* Login card */
+        .login-card {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 400px;
+            padding: 48px 40px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 80px rgba(184, 148, 74, 0.03);
+            animation: cardIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .login-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 36px;
+        }
+
+        .login-logo img {
+            width: 72px;
+            height: 72px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 12px rgba(184, 148, 74, 0.2));
+        }
+
+        .login-logo h1 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 22px;
+            letter-spacing: 2px;
+        }
+
+        .login-logo h1 span {
+            color: var(--gold);
+        }
+
+        .login-logo p {
+            font-size: 13px;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        /* Form */
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(184, 148, 74, 0.1);
+        }
+
+        .input-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            border: none;
+            border-radius: var(--radius-sm);
+            color: #0a0a0a;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 8px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(184, 148, 74, 0.3);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        /* Error message */
+        .login-error {
+            padding: 10px 14px;
+            background: rgba(255, 60, 60, 0.08);
+            border: 1px solid rgba(255, 60, 60, 0.2);
+            border-radius: var(--radius-sm);
+            color: #ff6b6b;
+            font-size: 12px;
+            text-align: center;
+            display: none;
+            animation: shake 0.4s ease;
+        }
+
+        .login-error.visible {
+            display: block;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+
+        /* Footer */
+        .login-footer {
+            margin-top: 28px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        .login-footer a {
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                margin: 16px;
+                padding: 36px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<div class="login-card">
+    <div class="login-logo">
+        <img src="logo-transparent.png" alt="APEX">
+        <h1><span>APEX</span> Cover Generator</h1>
+        <p>Interni alat za generisanje Instagram cover-a</p>
+    </div>
+
+    <form class="login-form" id="loginForm" onsubmit="handleLogin(event)">
+        <div class="input-group">
+            <label>Korisničko ime</label>
+            <input type="text" id="username" placeholder="Unesite korisničko ime" autocomplete="username" required autofocus>
+        </div>
+
+        <div class="input-group">
+            <label>Lozinka</label>
+            <input type="password" id="password" placeholder="Unesite lozinku" autocomplete="current-password" required>
+        </div>
+
+        <div class="login-error" id="loginError">
+            Pogrešno korisničko ime ili lozinka
+        </div>
+
+        <button type="submit" class="btn-login">Prijavi se</button>
+    </form>
+
+    <div class="login-footer">
+        <a href="https://apexrealestate.rs" target="_blank">apexrealestate.rs</a> — Interni pristup
+    </div>
+</div>
+
+<script>
+    // Check if already logged in
+    if (sessionStorage.getItem('apex_auth') === 'true') {
+        window.location.href = 'generator.html';
+    }
+
+    function handleLogin(e) {
+        e.preventDefault();
+
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+
+        // Simple hash check (not plain text in source)
+        const validHash = hashCredentials('admin', 'apex2026');
+        const inputHash = hashCredentials(username, password);
+
+        if (inputHash === validHash) {
+            sessionStorage.setItem('apex_auth', 'true');
+            sessionStorage.setItem('apex_user', username);
+            window.location.href = 'generator.html';
+        } else {
+            const errorEl = document.getElementById('loginError');
+            errorEl.classList.add('visible');
+            document.getElementById('password').value = '';
+            document.getElementById('password').focus();
+
+            setTimeout(() => {
+                errorEl.classList.remove('visible');
+            }, 4000);
+        }
+    }
+
+    // Simple hash to avoid plain text credentials in source
+    function hashCredentials(user, pass) {
+        const str = user + ':' + pass;
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        return hash.toString(36);
+    }
+</script>
+
+</body>
+</html>

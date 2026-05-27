@@ -10,3 +10,6 @@ static_sites:
     output_dir: /
     index_document: index.html
     catchall_document: index.html
+domains:
+  - domain: cover.apexrealestate.rs
+    type: PRIMARY
