@@ -492,6 +492,7 @@ body {
 .preview-container {
     width: 100%;
     max-width: 432px;
+    max-height: calc(100vh - 220px);
     aspect-ratio: 4/5;
     border-radius: var(--radius-lg);
     overflow: hidden;
@@ -504,6 +505,7 @@ body {
     width: 100%;
     height: 100%;
     display: block;
+    object-fit: contain;
 }
 
 /* Preview action buttons */
